@@ -17,15 +17,16 @@ $.fn.loadImage = function(src, options) {
 			// animation length
 			time: 		300,
 			// callbacks
-			onload: 	function() {},
-			onshow: 	function() {}
+			onload: 	null,
+			onshow: 	null
 		},
 		// if <img/> passed
 		discreet 	= document.createElement('div'),
 		// regex to find if <tag/>
 		isTag 		= /^<([^\s>]+)/.exec(src),
-		// img object to laod
+		// img object to load
 		img  		= new Image(),
+		$img 		= $(img),
 		// dimension cache
 		dims 		= {
 			width: 		0,
@@ -55,7 +56,9 @@ $.fn.loadImage = function(src, options) {
 				var ratio = (this.width/this.height).toFixed(1);
 
 				// when loaded run callback
-				opts.onload(this);
+				if ( opts.onload && typeof opts.onload === 'function' ) {
+					opts.onload.call(self, $img);
+				}				
 
 				// set width either user required or...
 				dims.width = opts.width || (function() {
@@ -95,7 +98,11 @@ $.fn.loadImage = function(src, options) {
 						// if animation
 						if ( opts.animation ) {
 							// run animation according to time and run callback
-							$(img)[opts.animation](opts.time, opts.onshow);
+							$img[opts.animation](opts.time, function() {
+								if ( opts.onshow && typeof opts.onshow === 'function' ) {
+									opts.onshow.call(self, $img);
+								}
+							});
 						// just show image
 						} else {
 							img.style.display = '';
